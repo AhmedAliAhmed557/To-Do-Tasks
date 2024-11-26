@@ -7,10 +7,7 @@ import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 import NoTasks from "./NoTasks";
 
 export default function MainToDoList() {
-	const [tasks, setTasks] = useState<TaskType[]>(() => {
-		const savedTasks = localStorage.getItem("tasks");
-		return savedTasks ? JSON.parse(savedTasks) : [];
-	});
+	const [tasks, setTasks] = useState<TaskType[]>([]);
 
 	const [showModal, setShowModal] = useState(false);
 	const [editTask, setEditTask] = useState<TaskType | null>(null);
@@ -24,6 +21,13 @@ export default function MainToDoList() {
 	const [filterPriority, setFilterPriority] = useState<
 		"all" | "high" | "medium" | "low"
 	>("all");
+
+	useEffect(() => {
+		const savedTasks = localStorage.getItem("tasks");
+		if (savedTasks) {
+			setTasks(JSON.parse(savedTasks));
+		}
+	}, []);
 
 	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setSearchQuery(e.target.value);
