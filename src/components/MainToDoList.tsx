@@ -103,7 +103,10 @@ export default function MainToDoList() {
 	return (
 		<div className='p-4 max-w-lg md:max-w-7xl mx-auto'>
 			<h1 className='text-2xl block font-bold text-center mb-6 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-transparent bg-clip-text border-2 border-purple-500 px-4 py-2 rounded-lg'>
-				To-Do List
+				To-Do List{" "}
+				<span className=''>
+					{tasks.length === 0 ? "" : "(" + tasks.length + ")"}
+				</span>
 			</h1>
 
 			<div className='mb-4 flex items-center justify-between gap-3 flex-col flex-wrap'>
