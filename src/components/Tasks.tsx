@@ -45,8 +45,27 @@ const Task: React.FC<TaskProps> = ({
 				</label>
 			</div>
 
-			<p className={`${task.completed ? "line-through" : ""} text-gray-600`}>
+			<p
+				className={`${
+					task.completed ? "line-through" : ""
+				} text-gray-600 truncate`}
+			>
 				{task.description}
+			</p>
+			<p
+				className={`${
+					task.priority === "high"
+						? "text-red-500"
+						: task.priority === "medium"
+						? "text-yellow-500"
+						: "text-green-500"
+				} text-sm block`}
+			>
+				{task.priority === "high"
+					? "High"
+					: task.priority === "medium"
+					? "Medium"
+					: "Low"}
 			</p>
 			<p
 				className={`${

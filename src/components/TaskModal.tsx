@@ -10,6 +10,7 @@ interface TaskModalProps {
 const TaskModal: React.FC<TaskModalProps> = ({ task, onSave, onClose }) => {
 	const [title, setTitle] = useState(task?.title || "");
 	const [description, setDescription] = useState(task?.description || "");
+	const [priority, setPriority] = useState(task?.priority || "");
 
 	const handleSubmit = () => {
 		if (title.trim()) {
@@ -17,6 +18,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, onSave, onClose }) => {
 				...task,
 				title,
 				description,
+				priority,
 				updatedAt: Date.now(),
 			} as TaskType);
 		}
@@ -24,7 +26,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, onSave, onClose }) => {
 
 	return (
 		<div className='fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75'>
-			<div className='bg-white p-6 rounded-lg shadow-lg'>
+			<div className='bg-white p-6 rounded-lg shadow-lg w-96'>
 				<h2 className='text-xl mb-4'>{task ? "Edit Task" : "New Task"}</h2>
 				<input
 					type='text'
@@ -39,6 +41,20 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, onSave, onClose }) => {
 					onChange={(e) => setDescription(e.target.value)}
 					className='border p-2 w-full min-h-20 max-h-60 focus:border-0 rounded focus:outline-dashed focus:outline-2 outline-offset-2 outline-green-400'
 				/>
+				<div className='mt-4'>
+					<label className='block text-sm mb-2'>Priority</label>
+					<select
+						value={priority}
+						onChange={(e) => setPriority(e.target.value)}
+						className='border p-2 w-full rounded focus:outline-dashed focus:outline-2 outline-offset-2 outline-green-400'
+					>
+						<option value=''>Select Priority</option>
+						<option value='low'>Low</option>
+						<option value='medium'>Medium</option>
+						<option value='high'>High</option>
+					</select>
+				</div>
+
 				<div className='mt-4 flex justify-end'>
 					<button
 						className='bg-gray-500 text-white py-1 px-3 rounded'
