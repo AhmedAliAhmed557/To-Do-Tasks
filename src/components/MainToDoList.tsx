@@ -14,6 +14,9 @@ export default function MainToDoList() {
 
 	const [searchQuery, setSearchQuery] = useState<string>("");
 	const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+	const [filterStatus, setFilterStatus] = useState<
+		"all" | "completed" | "notCompleted"
+	>("all");
 
 	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setSearchQuery(e.target.value);
@@ -32,8 +35,22 @@ export default function MainToDoList() {
 		localStorage.setItem("tasks", JSON.stringify(tasks));
 	}, [tasks]);
 
+	const toggleTaskDone = (id: number) => {
+		setTasks(
+			tasks.map((task) =>
+				task.id === id ? { ...task, completed: !task.completed } : task
+			)
+		);
+	};
+
 	const addTask = (task: TaskType) => {
-		setTasks([...tasks, { ...task, id: Date.now() }]);
+		const newTask: TaskType = {
+			...task,
+			id: Date.now(),
+			updatedAt: Date.now(),
+			completed: false,
+		};
+		setTasks([...tasks, newTask]);
 		setShowModal(false);
 	};
 
@@ -57,9 +74,15 @@ export default function MainToDoList() {
 		}
 	}, []);
 
-	const filteredTasks = tasks.filter((task) =>
-		task.title.toLowerCase().includes(searchQuery.toLowerCase())
-	);
+	const filteredTasks = tasks
+		.filter((task) =>
+			task.title.toLowerCase().includes(searchQuery.toLowerCase())
+		)
+		.filter((task) => {
+			if (filterStatus === "completed") return task.completed;
+			if (filterStatus === "notCompleted") return !task.completed;
+			return true;
+		});
 
 	const sortedTasks = filteredTasks.sort((a, b) => {
 		if (sortOrder === "asc") {
@@ -82,24 +105,67 @@ export default function MainToDoList() {
 				>
 					Add Task
 				</button>
-				<input
-					type='text'
-					value={searchQuery}
-					onChange={handleSearchChange}
-					placeholder='Search tasks...'
-					className='p-2 border focus:border-0 border-gray-300 rounded-lg w-full max-w-md flex-1 focus:outline focus:outline-2 outline-offset-2 outline-blue-500'
-				/>
-				<button
-					onClick={toggleSortOrder}
-					disabled={sortedTasks.length <= 0}
-					className={`${
-						sortedTasks.length <= 1
-							? "opacity-70 cursor-not-allowed"
-							: "cursor-pointer"
-					} px-4 py-2 bg-blue-500 text-white rounded-lg  hover:bg-blue-600 focus:outline focus:outline-2 outline-offset-2 outline-blue-500 w-full md:w-auto`}
-				>
-					Sort {sortOrder === "asc" ? "Descending" : "Ascending"}
-				</button>
+
+				<div className='relative w-full max-w-md flex-1'>
+					<input
+						type='text'
+						value={searchQuery}
+						onChange={handleSearchChange}
+						placeholder='Search tasks...'
+						className='p-2 border border-gray-300 rounded-lg w-full focus:outline focus:outline-2 outline-offset-2 outline-blue-500'
+					/>
+					{searchQuery && (
+						<button
+							onClick={() => setSearchQuery("")}
+							className='absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700'
+							aria-label='Clear search'
+						>
+							✕
+						</button>
+					)}
+				</div>
+
+				<div className='flex gap-2 mt-2'>
+					<button
+						onClick={() => setFilterStatus("all")}
+						className={`px-4 py-2 rounded-lg ${
+							filterStatus === "all" ? "bg-blue-500 text-white" : "bg-gray-200"
+						}`}
+					>
+						All
+					</button>
+					<button
+						onClick={() => setFilterStatus("completed")}
+						className={`px-4 py-2 rounded-lg ${
+							filterStatus === "completed"
+								? "bg-green-500 text-white"
+								: "bg-gray-200"
+						}`}
+					>
+						Completed
+					</button>
+					<button
+						onClick={() => setFilterStatus("notCompleted")}
+						className={`px-4 py-2 rounded-lg ${
+							filterStatus === "notCompleted"
+								? "bg-red-500 text-white"
+								: "bg-gray-200"
+						}`}
+					>
+						Not Completed
+					</button>
+					<button
+						onClick={toggleSortOrder}
+						disabled={sortedTasks.length <= 0}
+						className={`${
+							sortedTasks.length <= 1
+								? "opacity-70 cursor-not-allowed"
+								: "cursor-pointer"
+						} px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline focus:outline-2 outline-offset-2 outline-blue-500 w-full md:w-auto`}
+					>
+						Sort {sortOrder === "asc" ? "Descending" : "Ascending"}
+					</button>
+				</div>
 			</div>
 
 			<div className='mt-4'>
@@ -113,9 +179,11 @@ export default function MainToDoList() {
 							setShowModal(true);
 						}}
 						onDelete={() => setDeleteTaskId(task.id)}
+						onToggleDone={() => toggleTaskDone(task.id)}
 					/>
 				))}
 			</div>
+
 			{showModal && (
 				<TaskModal
 					task={editTask}
@@ -126,6 +194,7 @@ export default function MainToDoList() {
 					}}
 				/>
 			)}
+
 			{deleteTaskId && (
 				<ConfirmDeleteModal
 					onConfirm={() => deleteTask(deleteTaskId)}

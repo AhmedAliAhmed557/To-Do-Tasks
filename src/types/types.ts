@@ -6,5 +6,6 @@ export interface Task {
     title: string;
     description?: string;
     updatedAt: number;
+    completed: boolean;
   }
   
