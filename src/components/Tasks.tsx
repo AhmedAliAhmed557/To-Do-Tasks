@@ -20,8 +20,11 @@ const Task: React.FC<TaskProps> = ({
 			}`}
 		>
 			<div className='flex items-center gap-3 justify-between'>
-				<h2 className='text-xl font-semibold'>
-					<span className={`${task.completed ? "line-through" : ""}`}>
+				<h2 className='text-xl font-semibold flex flex-wrap gap-1 items-center'>
+					{task.priorityNumber && (
+						<span className='text-red-500'>{task.priorityNumber} -</span>
+					)}
+					<span className={`${task.completed ? "line-through" : ""} truncate`}>
 						{task.title}
 					</span>{" "}
 					-{" "}

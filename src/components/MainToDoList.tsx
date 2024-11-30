@@ -14,6 +14,9 @@ export default function MainToDoList() {
 	const [deleteTaskId, setDeleteTaskId] = useState<number | null>(null);
 
 	const [searchQuery, setSearchQuery] = useState<string>("");
+	const [sortType, setSortType] = useState<"title" | "id" | "priorityNumber">(
+		"title"
+	);
 	const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 	const [filterStatus, setFilterStatus] = useState<
 		"all" | "completed" | "notCompleted"
@@ -55,9 +58,11 @@ export default function MainToDoList() {
 	};
 
 	const addTask = (task: TaskType) => {
+		const maxId =
+			tasks.length > 0 ? Math.max(...tasks.map((task) => task.id)) : 0;
 		const newTask: TaskType = {
 			...task,
-			id: Date.now(),
+			id: maxId + 1,
 			updatedAt: Date.now(),
 			completed: false,
 		};
@@ -93,13 +98,26 @@ export default function MainToDoList() {
 		});
 
 	const sortedTasks = filteredTasks.sort((a, b) => {
-		if (sortOrder === "asc") {
-			return a.title.localeCompare(b.title);
-		} else {
-			return b.title.localeCompare(a.title);
+		switch (sortType) {
+			case "title":
+				return sortOrder === "asc"
+					? a.title.localeCompare(b.title)
+					: b.title.localeCompare(a.title);
+			case "id":
+				return sortOrder === "asc" ? a.id - b.id : b.id - a.id;
+			case "priorityNumber":
+				// Handle cases where priorityNumber might be undefined
+				const priorityA = a.priorityNumber ?? Infinity;
+				const priorityB = b.priorityNumber ?? Infinity;
+				return sortOrder === "asc"
+					? priorityA - priorityB
+					: priorityB - priorityA;
+			default:
+				return 0;
 		}
 	});
 
+	console.log("tasks", tasks);
 	return (
 		<div className='p-4 max-w-lg md:max-w-7xl mx-auto'>
 			<h1 className='text-2xl block font-bold text-center mb-6 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-transparent bg-clip-text border-2 border-purple-500 px-4 py-2 rounded-lg'>
@@ -136,17 +154,38 @@ export default function MainToDoList() {
 							</button>
 						)}
 					</div>
-					<button
-						onClick={toggleSortOrder}
-						disabled={sortedTasks.length <= 0}
-						className={`${
-							sortedTasks.length <= 1
-								? "opacity-70 cursor-not-allowed"
-								: "cursor-pointer"
-						} px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline focus:outline-2 outline-offset-2 outline-blue-500 w-full md:w-auto`}
-					>
-						Sort {sortOrder === "asc" ? "Descending" : "Ascending"}
-					</button>
+					<div className='flex gap-2'>
+						<button
+							onClick={() => {
+								const nextSortType = {
+									title: "id",
+									id: "priorityNumber",
+									priorityNumber: "title",
+								}[sortType] as "title" | "id" | "priorityNumber";
+								setSortType(nextSortType);
+							}}
+							className='px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 focus:outline focus:outline-2 outline-offset-2 outline-purple-500 w-full md:w-auto'
+						>
+							Sort by{" "}
+							{sortType === "title"
+								? "ID"
+								: sortType === "id"
+								? "Priority"
+								: "Title"}
+						</button>
+
+						<button
+							onClick={toggleSortOrder}
+							disabled={sortedTasks.length <= 1}
+							className={`${
+								sortedTasks.length <= 1
+									? "opacity-70 cursor-not-allowed"
+									: "cursor-pointer"
+							} px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline focus:outline-2 outline-offset-2 outline-blue-500 w-full md:w-auto`}
+						>
+							Sort {sortOrder === "asc" ? "Descending" : "Ascending"}
+						</button>
+					</div>
 				</div>
 
 				<div className='flex flex-wrap gap-2 mt-2'>
@@ -257,6 +296,7 @@ export default function MainToDoList() {
 						setShowModal(false);
 						setEditTask(null);
 					}}
+					numOfTasks={tasks.length}
 				/>
 			)}
 

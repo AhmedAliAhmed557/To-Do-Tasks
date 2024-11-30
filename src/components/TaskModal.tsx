@@ -5,12 +5,19 @@ interface TaskModalProps {
 	task: TaskType | null;
 	onSave: (task: TaskType) => void;
 	onClose: () => void;
+	numOfTasks: number;
 }
 
-const TaskModal: React.FC<TaskModalProps> = ({ task, onSave, onClose }) => {
+const TaskModal: React.FC<TaskModalProps> = ({
+	task,
+	onSave,
+	onClose,
+	numOfTasks,
+}) => {
 	const [title, setTitle] = useState(task?.title || "");
 	const [description, setDescription] = useState(task?.description || "");
-	const [priority, setPriority] = useState(task?.priority || "");
+	const [priority, setPriority] = useState(task?.priority || "low");
+	const [priorityNumber, setPriorityNumber] = useState(task?.priorityNumber);
 
 	const handleSubmit = () => {
 		if (title.trim()) {
@@ -18,6 +25,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, onSave, onClose }) => {
 				...task,
 				title,
 				description,
+				priorityNumber,
 				priority,
 				updatedAt: Date.now(),
 			} as TaskType);
@@ -34,12 +42,21 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, onSave, onClose }) => {
 					value={title}
 					onChange={(e) => setTitle(e.target.value)}
 					className='border p-2 mb-4 w-full rounded focus:border-0 focus:outline-dashed focus:outline-2 outline-offset-2 outline-green-400'
+					maxLength={25}
 				/>
 				<textarea
 					placeholder='Description'
 					value={description}
 					onChange={(e) => setDescription(e.target.value)}
 					className='border p-2 w-full min-h-20 max-h-60 focus:border-0 rounded focus:outline-dashed focus:outline-2 outline-offset-2 outline-green-400'
+				/>
+				<input
+					type='number'
+					placeholder='Priority Number'
+					value={priorityNumber}
+					onChange={(e) => setPriorityNumber(Number(e.target.value))}
+					className='border p-2 mt-4 w-full rounded focus:border-0 focus:outline-dashed focus:outline-2 outline-offset-2 outline-green-400'
+					maxLength={numOfTasks}
 				/>
 				<div className='mt-4'>
 					<label className='block text-sm mb-2'>Priority</label>
